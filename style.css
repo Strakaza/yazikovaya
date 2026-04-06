@@ -180,80 +180,79 @@ label { font-family: var(--font-art); font-weight: 800; font-size: 0.8rem; displ
     .input-wrapper { padding: 10px 5% 20px 5%; }
 }
 
-/* --- FORMATAGE DU TEXTE IA (MARKDOWN) --- */
+/* --- FORMATAGE DU TEXTE IA (STYLE CLAIR & CLASSE) --- */
 .log-entry p { 
     margin-top: 0; 
-    line-height: 1.6; 
+    line-height: 1.7; 
+    font-size: 1.05rem;
 }
 
-/* Bloc de code isolé : Style Premium Brutaliste */
+/* Bloc de code : Style "Studio Photo / Papier" */
 .log-entry pre {
-    background: #0d0d0d; /* Noir profond, plus élégant qu'un gris sombre */
-    color: #f4f4f5; /* Blanc cassé doux : supprime la fatigue visuelle du vert fluo */
-    padding: 3rem 1.5rem 1.5rem 1.5rem; /* Respiration augmentée */
-    border: 2px solid var(--ink); /* Maintien de l'identité visuelle */
+    background: #ffffff; /* Fond blanc pur */
+    color: var(--ink); /* Texte noir */
+    padding: 3.5rem 1.5rem 1.5rem 1.5rem; 
+    border: 1px solid var(--ink); /* Bordure fine et noire */
     overflow-x: auto;
     position: relative;
     margin: 2rem 0;
-    box-shadow: 6px 6px 0px var(--grid-line); /* Ombre douce mais nette */
-    border-radius: 4px; /* Un très léger arrondi pour la finition */
+    /* Ombre portée élégante et minimaliste */
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.05);
 }
 
-/* Détail Premium : Scrollbar personnalisée pour le bloc de code */
-.log-entry pre::-webkit-scrollbar {
-    height: 8px;
-}
-.log-entry pre::-webkit-scrollbar-track {
-    background: transparent;
-}
-.log-entry pre::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-}
-.log-entry pre::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+/* Barrettes de décoration sur le côté du code pour le style */
+.log-entry pre::before {
+    content: "SOURCE CODE";
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    opacity: 0.3;
 }
 
 .log-entry code {
     font-family: var(--font-tech);
-    font-size: 0.9rem; /* Légèrement plus grand pour la lisibilité */
-    line-height: 1.5;
-    letter-spacing: -0.02em; /* Resserre très légèrement la font monospace pour un rendu plus pro */
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
-/* Petits bouts de code dans le texte normal (Inline code) */
+/* Code dans le texte (inline) */
 .log-entry p code {
-    background: rgba(5, 5, 5, 0.05); /* Fond subtil plutôt que chargé */
-    color: var(--ink); /* Couleur standard, s'intègre mieux à la phrase */
+    background: white;
+    color: var(--accent);
     padding: 0.2em 0.4em;
     border: 1px solid var(--grid-line);
-    border-radius: 4px;
-    font-size: 0.85em;
     font-weight: bold;
 }
 
-/* Le bouton COPIER : Refondu et aligné */
+/* Bouton COPIER : Style Bouton de Luxe */
 .copy-btn {
     position: absolute;
     top: 0;
     right: 0;
-    background: #ffffff; /* Fond blanc pour contraster fortement avec le bloc noir */
-    color: var(--ink);
+    background: var(--ink); /* Bouton noir */
+    color: white;
     border: none;
-    border-bottom: 2px solid var(--ink);
-    border-left: 2px solid var(--ink);
-    border-radius: 0 4px 0 4px; /* Épouse le coin droit parfaitement */
-    padding: 8px 16px;
-    font-family: var(--font-tech);
+    padding: 10px 20px;
+    font-family: var(--font-art); /* Utilise la police Syne pour le bouton */
     font-size: 0.7rem;
-    font-weight: bold;
+    font-weight: 800;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.05em; /* Approche légèrement augmentée */
+    letter-spacing: 1px;
     transition: all 0.2s ease;
 }
 
 .copy-btn:hover {
-    background: var(--accent);
-    color: white;
+    background: var(--accent); /* Devient orange au survol */
+    transform: none;
+}
+
+/* Style des titres à l'intérieur des messages de l'IA */
+.log-entry h1, .log-entry h2, .log-entry h3 {
+    font-family: var(--font-art);
+    text-transform: uppercase;
+    margin-top: 1.5rem;
 }
