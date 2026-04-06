@@ -179,3 +179,54 @@ label { font-family: var(--font-art); font-weight: 800; font-size: 0.8rem; displ
     .messages-container { padding: 20px 5% 150px 5%; }
     .input-wrapper { padding: 10px 5% 20px 5%; }
 }
+
+/* --- FORMATAGE DU TEXTE IA (MARKDOWN) --- */
+.log-entry p { margin-top: 0; line-height: 1.6; }
+
+/* Bloc de code isolé */
+.log-entry pre {
+    background: #0f0f0f;
+    color: #00ff6a; /* Vert style Matrix/Hacker */
+    padding: 2.5rem 1rem 1rem 1rem; /* Espace en haut pour le bouton */
+    border: 2px solid var(--ink);
+    overflow-x: auto;
+    position: relative;
+    margin: 1.5rem 0;
+    box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+}
+
+.log-entry code {
+    font-family: var(--font-tech);
+    font-size: 0.85rem;
+}
+
+/* Petits bouts de code dans le texte normal */
+.log-entry p code {
+    background: rgba(0,0,0,0.1);
+    color: var(--accent);
+    padding: 2px 5px;
+    border: 1px solid var(--ink);
+}
+
+/* Le fameux bouton COPIER */
+.copy-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--ink);
+    color: var(--bg-paper);
+    border: none;
+    border-bottom: 2px solid var(--ink);
+    border-left: 2px solid var(--ink);
+    padding: 5px 15px;
+    font-family: var(--font-tech);
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: background 0.2s;
+}
+
+.copy-btn:hover {
+    background: var(--accent);
+}
