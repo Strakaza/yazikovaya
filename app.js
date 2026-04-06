@@ -1,6 +1,7 @@
 let appPassword = '';
-let chatHistory =[];
+let chatHistory = [];
 
+// --- SÉLECTEURS DOM ---
 const loginScreen = document.getElementById('login-screen');
 const chatScreen = document.getElementById('chat-screen');
 const loginBtn = document.getElementById('login-btn');
@@ -10,10 +11,11 @@ const chatBox = document.getElementById('chat-box');
 const msgInput = document.getElementById('message-input');
 const sendBtn = document.getElementById('send-btn');
 const statusDisplay = document.getElementById('status-display');
+const logoutBtn = document.getElementById('logout-btn');
 
-// --- AUTHENTIFICATION RÉELLE ---
+// --- 1. SYSTÈME D'AUTHENTIFICATION ---
 loginBtn.addEventListener('click', async () => {
-    const pass = passInput.value;
+    const pass = passInput.value.trim();
     if (!pass) return;
 
     loginBtn.innerHTML = 'VÉRIFICATION...';
@@ -21,22 +23,22 @@ loginBtn.addEventListener('click', async () => {
     loginError.style.display = 'none';
 
     try {
-        // On interroge Netlify pour voir si le mot de passe est le bon
+        // On vérifie le mot de passe via une action "login" silencieuse
         const response = await fetch('/.netlify/functions/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: pass, action: 'login' }) // Action 'login'
+            body: JSON.stringify({ password: pass, action: 'login' })
         });
 
         if (response.ok) {
-            // Mot de passe correct !
             appPassword = pass;
             loginScreen.style.display = 'none';
             chatScreen.style.display = 'flex';
+            msgInput.focus();
         } else {
-            // Mot de passe faux
             loginError.innerText = "ACCÈS REFUSÉ : MOT DE PASSE INCORRECT";
             loginError.style.display = 'block';
+            passInput.value = '';
         }
     } catch (e) {
         loginError.innerText = "ERREUR DE CONNEXION AU SERVEUR";
@@ -47,23 +49,54 @@ loginBtn.addEventListener('click', async () => {
     }
 });
 
-// --- ENVOI DE MESSAGE ---
-sendBtn.addEventListener('click', sendMessage);
-msgInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
+// --- 2. GESTION DU RENDU (MARKDOWN + BOUTON COPIER) ---
+function renderContent(text, containerElement, isAI = false) {
+    if (isAI) {
+        // Utilisation de la bibliothèque marked.js pour transformer le markdown en HTML
+        containerElement.innerHTML = marked.parse(text);
 
+        // Ajout des boutons "Copier" sur chaque bloc de code <pre>
+        const codeBlocks = containerElement.querySelectorAll('pre');
+        codeBlocks.forEach((pre) => {
+            // Empêcher les doublons de boutons si updateLogEntry est appelé plusieurs fois
+            if (pre.querySelector('.copy-btn')) return;
+
+            const btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.innerText = 'COPIER LE CODE';
+
+            btn.addEventListener('click', () => {
+                const codeText = pre.querySelector('code').innerText;
+                navigator.clipboard.writeText(codeText).then(() => {
+                    btn.innerText = 'COPIÉ !';
+                    btn.style.background = '#00ff6a';
+                    btn.style.color = '#000';
+                    setTimeout(() => {
+                        btn.innerText = 'COPIER LE CODE';
+                        btn.style.background = 'var(--ink)';
+                        btn.style.color = 'var(--bg-paper)';
+                    }, 2000);
+                });
+            });
+            pre.appendChild(btn);
+        });
+    } else {
+        // Pour l'utilisateur, on affiche le texte brut pour éviter les injections XSS
+        containerElement.innerText = text;
+    }
+}
+
+// --- 3. LOGIQUE DE CHAT ---
 async function sendMessage() {
     const text = msgInput.value.trim();
-    if (!text) return;
+    if (!text || sendBtn.disabled) return;
 
+    // UI: Message Utilisateur
     addLogEntry(text, 'user');
     chatHistory.push({ role: 'user', content: text });
     msgInput.value = '';
     
+    // UI: État d'attente
     sendBtn.disabled = true;
     statusDisplay.innerHTML = 'STATUT: <span class="accent-text">RÉFLEXION...</span>';
     const loadingId = addLogEntry('GÉNÉRATION EN COURS...', 'ai');
@@ -72,7 +105,11 @@ async function sendMessage() {
         const response = await fetch('/.netlify/functions/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: appPassword, messages: chatHistory, action: 'chat' })
+            body: JSON.stringify({ 
+                password: appPassword, 
+                messages: chatHistory, 
+                action: 'chat' 
+            })
         });
 
         const data = await response.json();
@@ -81,11 +118,15 @@ async function sendMessage() {
             updateLogEntry(loadingId, data.reply);
             chatHistory.push({ role: 'assistant', content: data.reply });
         } else {
-            // Si c'est une erreur venant d'OpenRouter (modèle indisponible, clé invalide, etc.)
-            updateLogEntry(loadingId, "ERREUR IA : " + (data.error || "Problème avec OpenRouter"));
+            // Gestion des erreurs (Timeout Netlify ou erreur OpenRouter)
+            let errorMsg = data.error || "Problème de communication avec l'IA.";
+            if (response.status === 500 && errorMsg.includes('Timeout')) {
+                errorMsg = "TIMEOUT : L'IA met trop de temps à répondre. Essayez un modèle plus rapide (Gemini Flash).";
+            }
+            updateLogEntry(loadingId, "ERREUR IA : " + errorMsg);
         }
     } catch (e) {
-        updateLogEntry(loadingId, "ERREUR DE LIAISON SATELLITE.");
+        updateLogEntry(loadingId, "ERREUR DE LIAISON SATELLITE (Vérifiez votre connexion).");
     } finally {
         sendBtn.disabled = false;
         statusDisplay.innerHTML = 'STATUT: <span class="accent-text">EN LIGNE</span>';
@@ -93,12 +134,15 @@ async function sendMessage() {
     }
 }
 
+// --- 4. HELPERS UI ---
 function addLogEntry(text, type) {
     const id = 'log-' + Date.now();
     const div = document.createElement('div');
     div.id = id;
     div.className = `log-entry ${type}`;
-    div.innerText = text;
+    
+    renderContent(text, div, type === 'ai');
+    
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
     return id;
@@ -106,7 +150,27 @@ function addLogEntry(text, type) {
 
 function updateLogEntry(id, text) {
     const el = document.getElementById(id);
-    if (el) el.innerText = text;
+    if (el) {
+        renderContent(text, el, true);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 }
 
-document.getElementById('logout-btn').addEventListener('click', () => location.reload());
+// --- 5. ÉVÉNEMENTS ---
+sendBtn.addEventListener('click', sendMessage);
+
+msgInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+logoutBtn.addEventListener('click', () => {
+    if(confirm("Voulez-vous fermer la session ?")) {
+        location.reload();
+    }
+});
+
+// Auto-focus mot de passe au chargement
+window.onload = () => passInput.focus();
