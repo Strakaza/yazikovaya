@@ -15,7 +15,7 @@ exports.handler = async function(event, context) {
             };
         }
 
-        // 2. Si l'interface veut juste vérifier le login, on s'arrête là (Succès !)
+        // 2. Si l'interface veut juste vérifier le login
         if (action === 'login') {
             return {
                 statusCode: 200,
@@ -33,7 +33,7 @@ exports.handler = async function(event, context) {
                 "Authorization": `Bearer ${openrouterApiKey}`,
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://yazikovaya.netlify.app", 
-                "X-Title": "КАТАЛОГ System" 
+                "X-Title": "Yazikovaya System" 
             },
             body: JSON.stringify({
                 model: openrouterModel,
@@ -45,7 +45,7 @@ exports.handler = async function(event, context) {
 
         if (!response.ok) {
             return {
-                statusCode: 400, // On renvoie 400 (Bad Request) et plus 401 pour ne pas déclencher le rechargement forcé
+                statusCode: 400,
                 body: JSON.stringify({ error: data.error?.message || "Erreur venant d'OpenRouter." })
             };
         }
