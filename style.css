@@ -181,52 +181,79 @@ label { font-family: var(--font-art); font-weight: 800; font-size: 0.8rem; displ
 }
 
 /* --- FORMATAGE DU TEXTE IA (MARKDOWN) --- */
-.log-entry p { margin-top: 0; line-height: 1.6; }
+.log-entry p { 
+    margin-top: 0; 
+    line-height: 1.6; 
+}
 
-/* Bloc de code isolé */
+/* Bloc de code isolé : Style Premium Brutaliste */
 .log-entry pre {
-    background: #0f0f0f;
-    color: #00ff6a; /* Vert style Matrix/Hacker */
-    padding: 2.5rem 1rem 1rem 1rem; /* Espace en haut pour le bouton */
-    border: 2px solid var(--ink);
+    background: #0d0d0d; /* Noir profond, plus élégant qu'un gris sombre */
+    color: #f4f4f5; /* Blanc cassé doux : supprime la fatigue visuelle du vert fluo */
+    padding: 3rem 1.5rem 1.5rem 1.5rem; /* Respiration augmentée */
+    border: 2px solid var(--ink); /* Maintien de l'identité visuelle */
     overflow-x: auto;
     position: relative;
-    margin: 1.5rem 0;
-    box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+    margin: 2rem 0;
+    box-shadow: 6px 6px 0px var(--grid-line); /* Ombre douce mais nette */
+    border-radius: 4px; /* Un très léger arrondi pour la finition */
+}
+
+/* Détail Premium : Scrollbar personnalisée pour le bloc de code */
+.log-entry pre::-webkit-scrollbar {
+    height: 8px;
+}
+.log-entry pre::-webkit-scrollbar-track {
+    background: transparent;
+}
+.log-entry pre::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+.log-entry pre::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .log-entry code {
     font-family: var(--font-tech);
-    font-size: 0.85rem;
+    font-size: 0.9rem; /* Légèrement plus grand pour la lisibilité */
+    line-height: 1.5;
+    letter-spacing: -0.02em; /* Resserre très légèrement la font monospace pour un rendu plus pro */
 }
 
-/* Petits bouts de code dans le texte normal */
+/* Petits bouts de code dans le texte normal (Inline code) */
 .log-entry p code {
-    background: rgba(0,0,0,0.1);
-    color: var(--accent);
-    padding: 2px 5px;
-    border: 1px solid var(--ink);
+    background: rgba(5, 5, 5, 0.05); /* Fond subtil plutôt que chargé */
+    color: var(--ink); /* Couleur standard, s'intègre mieux à la phrase */
+    padding: 0.2em 0.4em;
+    border: 1px solid var(--grid-line);
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
 }
 
-/* Le fameux bouton COPIER */
+/* Le bouton COPIER : Refondu et aligné */
 .copy-btn {
     position: absolute;
     top: 0;
     right: 0;
-    background: var(--ink);
-    color: var(--bg-paper);
+    background: #ffffff; /* Fond blanc pour contraster fortement avec le bloc noir */
+    color: var(--ink);
     border: none;
     border-bottom: 2px solid var(--ink);
     border-left: 2px solid var(--ink);
-    padding: 5px 15px;
+    border-radius: 0 4px 0 4px; /* Épouse le coin droit parfaitement */
+    padding: 8px 16px;
     font-family: var(--font-tech);
     font-size: 0.7rem;
     font-weight: bold;
     cursor: pointer;
     text-transform: uppercase;
-    transition: background 0.2s;
+    letter-spacing: 0.05em; /* Approche légèrement augmentée */
+    transition: all 0.2s ease;
 }
 
 .copy-btn:hover {
     background: var(--accent);
+    color: white;
 }
