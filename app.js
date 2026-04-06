@@ -1,26 +1,53 @@
 let appPassword = '';
-let chatHistory = [];
+let chatHistory =[];
 
 const loginScreen = document.getElementById('login-screen');
 const chatScreen = document.getElementById('chat-screen');
 const loginBtn = document.getElementById('login-btn');
 const passInput = document.getElementById('password-input');
+const loginError = document.getElementById('login-error');
 const chatBox = document.getElementById('chat-box');
 const msgInput = document.getElementById('message-input');
 const sendBtn = document.getElementById('send-btn');
 const statusDisplay = document.getElementById('status-display');
 
-// AUTHENTIFICATION
-loginBtn.addEventListener('click', () => {
-    appPassword = passInput.value;
-    if (appPassword) {
-        // En mode réel, on vérifiera via la fonction Netlify
-        loginScreen.style.display = 'none';
-        chatScreen.style.display = 'flex';
+// --- AUTHENTIFICATION RÉELLE ---
+loginBtn.addEventListener('click', async () => {
+    const pass = passInput.value;
+    if (!pass) return;
+
+    loginBtn.innerHTML = 'VÉRIFICATION...';
+    loginBtn.disabled = true;
+    loginError.style.display = 'none';
+
+    try {
+        // On interroge Netlify pour voir si le mot de passe est le bon
+        const response = await fetch('/.netlify/functions/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pass, action: 'login' }) // Action 'login'
+        });
+
+        if (response.ok) {
+            // Mot de passe correct !
+            appPassword = pass;
+            loginScreen.style.display = 'none';
+            chatScreen.style.display = 'flex';
+        } else {
+            // Mot de passe faux
+            loginError.innerText = "ACCÈS REFUSÉ : MOT DE PASSE INCORRECT";
+            loginError.style.display = 'block';
+        }
+    } catch (e) {
+        loginError.innerText = "ERREUR DE CONNEXION AU SERVEUR";
+        loginError.style.display = 'block';
+    } finally {
+        loginBtn.innerHTML = 'ENTRER dans le système →';
+        loginBtn.disabled = false;
     }
 });
 
-// ENVOI
+// --- ENVOI DE MESSAGE ---
 sendBtn.addEventListener('click', sendMessage);
 msgInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -45,7 +72,7 @@ async function sendMessage() {
         const response = await fetch('/.netlify/functions/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: appPassword, messages: chatHistory })
+            body: JSON.stringify({ password: appPassword, messages: chatHistory, action: 'chat' })
         });
 
         const data = await response.json();
@@ -54,8 +81,8 @@ async function sendMessage() {
             updateLogEntry(loadingId, data.reply);
             chatHistory.push({ role: 'assistant', content: data.reply });
         } else {
-            updateLogEntry(loadingId, "ERREUR SYSTÈME: ACCÈS REFUSÉ.");
-            if(response.status === 401) setTimeout(() => location.reload(), 2000);
+            // Si c'est une erreur venant d'OpenRouter (modèle indisponible, clé invalide, etc.)
+            updateLogEntry(loadingId, "ERREUR IA : " + (data.error || "Problème avec OpenRouter"));
         }
     } catch (e) {
         updateLogEntry(loadingId, "ERREUR DE LIAISON SATELLITE.");
